@@ -6,7 +6,7 @@
 🔧 Setup Instructions
 To run this project, you need to create a .env file in the root directory and define the following environment variables:
 
-OPENWEATHER_API_KEY=your_openweather_api_key
+OPENWEATHER_API_KEY=your_openweather_api_key, 
 TOMORROW_API_KEY=your_tomorrow_io_api_key
 1. Get API Keys
 🌀 Visit (  https://www.pexels.com/  ) and sign up to get your API key.
