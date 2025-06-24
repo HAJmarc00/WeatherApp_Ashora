@@ -1,7 +1,7 @@
 # WeatherApp_Ashora
 🌤️ WeatherApp is a simple Django-based web app that lets users search for real-time weather data by city. It fetches data from OpenWeatherMap API and displays results with a responsive UI. API keys are managed securely using .env. Docker &amp; Nginx ready.
 
-===========================================================================================================================================================================
+===============================================================================
 
 🔧 Setup Instructions
 To run this project, you need to create a .env file in the root directory and define the following environment variables:
@@ -21,4 +21,4 @@ Once the .env file is set up, you can run the project with:
 
 
 Ashora.
-============================================================================================================================================================================
+===============================================================================
