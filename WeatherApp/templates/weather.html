@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 1.2s ease, color 1s ease;
+    }
+
+    #bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: opacity 1s ease, filter 1s ease;
+      opacity: 1;
+    }
+
+    body.light {
+      background-color: #f7f7f7;
+      color: #222;
+    }
+
+    body.dark {
+      background-color: #0a0a1f;
+      color: #fff;
+    }
+
+    .container {
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      max-width: 400px;
+      width: 100%;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 1s ease;
+    }
+
+    body.light .container {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    body.dark .container {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .heading {
+      font-size: 2.2rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      padding: 12px 16px;
+      border: 1px solid #bdbdbd;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+      font-size: 1rem;
+      width: 70%;
+    }
+
+    input[type="text"]:focus {
+      border: 1.5px solid #4f8cff;
+    }
+
+    .btn {
+      padding: 12px 22px;
+      border: none;
+      background: linear-gradient(90deg, #4f8cff 0%, #38b6ff 100%);
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, #38b6ff 0%, #4f8cff 100%);
+    }
+
+    .weather {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .icon img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .temp {
+      font-size: 3.5rem;
+      font-weight: 600;
+    }
+
+    .city {
+      font-size: 1.5rem;
+      margin-top: 10px;
+    }
+
+    .condition p {
+      margin: 10px 0 0 0;
+      font-size: 1.1rem;
+    }
+
+    .error {
+      margin-top: 20px;
+      color: red;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 25px 10px;
+        max-width: 95vw;
+      }
+      .temp {
+        font-size: 2.2rem;
+      }
+      .icon img {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+
+<body class="{{ theme_class }}">
+  <div id="bg-overlay"></div>
+
+  <div class="container">
+    <div class="heading">Weather App</div>
+    <form method="get">
+      <input type="text" name="city" placeholder="Enter city name" value="{{ city }}">
+      <button class="btn" type="submit">&#128269;</button>
+    </form>
+
+    {% if not error_message %}
+    <div class="weather">
+      <div class="icon">
+        <img src="{{ image_url }}" alt="Weather Icon">
+      </div>
+      <div class="temp">{{ temperature }}°C</div>
+      <div class="city">{{ city }}</div>
+      <div class="condition">
+        <p>{{ condition }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="error">
+      {{ error_message }}
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const city = "{{ city|escapejs }}";
+    const pexelsApiKey = "{{ pexels_api_key|escapejs }}"; 
+
+    async function fetchCityImage(cityName) {
+      const headers = { Authorization: pexelsApiKey };
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(cityName)}&per_page=1`;
+
+      try {
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+
+        if (data.photos && data.photos.length > 0) {
+          const photoUrl = data.photos[0].src.landscape;
+          animateBackgroundChange(photoUrl);
+        } else {
+          animateBackgroundChange("https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg");
+        }
+      } catch (error) {
+        console.error("Error fetching image from Pexels:", error);
+        animateBackgroundChange("https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg");
+      }
+    }
+
+    function animateBackgroundChange(newImage) {
+      const overlay = document.getElementById("bg-overlay");
+
+      const newLayer = document.createElement("div");
+      newLayer.style.position = "absolute";
+      newLayer.style.top = "0";
+      newLayer.style.left = "0";
+      newLayer.style.width = "100%";
+      newLayer.style.height = "100%";
+      newLayer.style.backgroundImage = `url('${newImage}')`;
+      newLayer.style.backgroundSize = "cover";
+      newLayer.style.backgroundPosition = "center";
+      newLayer.style.zIndex = "1";
+      newLayer.style.opacity = "0";
+      newLayer.style.transition = "opacity 1s ease, filter 1s ease";
+      newLayer.style.filter = "blur(8px)";
+      overlay.appendChild(newLayer);
+
+      requestAnimationFrame(() => {
+        newLayer.style.opacity = "1";
+        newLayer.style.filter = "blur(0)";
+      });
+
+      setTimeout(() => {
+        overlay.style.backgroundImage = `url('${newImage}')`;
+        overlay.removeChild(newLayer);
+      }, 1000);
+    }
+
+    window.addEventListener("load", () => {
+      fetchCityImage(city);
+    });
+  </script>
+</body>
+</html>
